@@ -18,16 +18,19 @@ workforce_cpi_25 <- function(gwas, cpi.series, month) {
   year.today <- lubridate::year(Sys.Date())               ### Look into making the sys.date() the default and inputting a start and end year parameter
   
   ### Download the CPI data from the BLS API.  Note: BLS can only pull 10 years worth of data at a time.
-  payload.1 <- list('seriesid' = relevant.series, 'startyear' = year.today - 9, 'endyear' = year.today + 1)
-  payload.1 <- fromJSON(blsAPI(payload.1))
+  payload.1 <- list('seriesid' = relevant.series, 'startyear' = year.today - 9, 'endyear' = year.today + 1, 
+                    'registrationKey' = 'de1da84d964e475bb4c04ec71b4895f4')
+  payload.1 <- fromJSON(blsAPI(payload.1, 2))
   
-  payload.2 <- list('seriesid' = relevant.series, 'startyear' = year.today - 19, 'endyear' = year.today - 9)
-  payload.2 <- fromJSON(blsAPI(payload.2))
+  payload.2 <- list('seriesid' = relevant.series, 'startyear' = year.today - 20, 'endyear' = year.today - 10,
+                    'registrationKey' = 'de1da84d964e475bb4c04ec71b4895f4')
+  payload.2 <- fromJSON(blsAPI(payload.2, 2))
   
-  payload.3 <- list('seriesid' = relevant.series, 'startyear' = year.today - 29, 'endyear' = year.today - 19)
-  payload.3 <- fromJSON(blsAPI(payload.3))
+  payload.3 <- list('seriesid' = relevant.series, 'startyear' = year.today - 30, 'endyear' = year.today - 21,
+                    'registrationKey' = 'de1da84d964e475bb4c04ec71b4895f4')
+  payload.3 <- fromJSON(blsAPI(payload.3, 2))
   
-  payload <- list("first" = payload.1, "second" = payload.2, "third" = payload.3)
+  payload <<- list("first" = payload.1, "second" = payload.2, "third" = payload.3)
   rm(payload.1, payload.2, payload.3)
   
   ### Combine the data into vectors by year, month, and value.  After, organize vectors in data frame
@@ -161,6 +164,7 @@ workforce_cpi_25 <- function(gwas, cpi.series, month) {
     geom_line(aes(y = final$`Regional CPI-W`, col = names(final$`Regional CPI-W`), color = "green"), size = 1.2) +
     scale_y_continuous(labels = percent) +
     scale_x_continuous(breaks = new.year, labels = fiscal.year) +
+    theme(axis.text.x = element_text(angle = 25)) +
     labs(title = "FOP General Wage Growth vs. CPI",
          subtitle = "25-Year Perspective",
          caption = "Source: Bureau of Labor Statistics",
