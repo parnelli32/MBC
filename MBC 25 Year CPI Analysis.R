@@ -164,7 +164,7 @@ workforce_cpi_25 <- function(gwas, cpi.series, month) {
     geom_line(aes(y = final$`Regional CPI-W`, col = names(final$`Regional CPI-W`), color = "green"), size = 1.2) +
     scale_y_continuous(labels = percent) +
     scale_x_continuous(breaks = new.year, labels = fiscal.year) +
-    theme(axis.text.x = element_text(angle = 25)) +
+    theme(axis.text.x = element_text(angle = 20)) +
     labs(title = "FOP General Wage Growth vs. CPI",
          subtitle = "25-Year Perspective",
          caption = "Source: Bureau of Labor Statistics",
