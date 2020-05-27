@@ -2,7 +2,7 @@
 
 ### Notes: Series refers to cpi series being pulled; Month refers to the last month in client fiscal year
 
-workforce_cpi_25 <- function(gwas, cpi.series, month) {
+workforce_cpi_25 <- function(gwas, cpi.series, month, end.year = NA) {
   
   ### Set-up  
   require(devtools)
@@ -15,8 +15,8 @@ workforce_cpi_25 <- function(gwas, cpi.series, month) {
   relevant.series <- cpi.series                               ### single or multiple CPI series can be pulled
   
   ### Generate today's year
-  year.today <- lubridate::year(Sys.Date())               ### Look into making the sys.date() the default and inputting a start and end year parameter
-  
+  year.today <- ifelse(is.na(end.year), lubridate::year(Sys.Date()), end.year)   ### Look into making the sys.date() the default and inputting a start and end year parameter
+   
   ### Download the CPI data from the BLS API.  Note: BLS can only pull 10 years worth of data at a time.
   payload.1 <- list('seriesid' = relevant.series, 'startyear' = year.today - 9, 'endyear' = year.today + 1, 
                     'registrationKey' = 'de1da84d964e475bb4c04ec71b4895f4')
@@ -159,11 +159,20 @@ workforce_cpi_25 <- function(gwas, cpi.series, month) {
   ### Plot a Line Graph
   theme_set(theme_classic())
   ggplot(final[,c(1,8:10)], aes(x = new.year)) +
-    geom_line(aes(y = final$`FOP GWAs`, col = names(final$`FOP GWAs`), color = "blue"), linetype = "dashed", size = 1.4) +
+    geom_line(aes(y = final$`FOP GWAs`, col = names(final$`FOP GWAs`), color = "blue"), linetype = "dashed", size = 1.4, show.legend = TRUE) +
     geom_line(aes(y = final$`National CPI-W`, col = names(final$`National CPI-W`), color = "red"), size = 1.2) +
     geom_line(aes(y = final$`Regional CPI-W`, col = names(final$`Regional CPI-W`), color = "green"), size = 1.2) +
-    scale_y_continuous(labels = percent) +
+    scale_y_continuous(limits = c(0,1), labels = percent) +
     scale_x_continuous(breaks = new.year, labels = fiscal.year) +
+    geom_text(aes(y = final$`FOP GWAs`, label = ifelse(new.year == new.year[length(new.year)], 
+                                                       label_percent(accuracy = .1)(final$`FOP GWAs`),"")),
+              nudge_x = .6) +
+    geom_text(aes(y = final$`National CPI-W`, label = ifelse(new.year == new.year[length(new.year)], 
+                                                             label_percent(accuracy = .1)(final$`National CPI-W`),"")),
+              nudge_x = .6) +
+    geom_text(aes(y = final$`Regional CPI-W`, label = ifelse(new.year == new.year[length(new.year)], 
+                                                             label_percent(accuracy = .1)(final$`Regional CPI-W`),"")),
+              nudge_x = .6) +
     theme(axis.text.x = element_text(angle = 20)) +
     labs(title = "FOP General Wage Growth vs. CPI",
          subtitle = "25-Year Perspective",
